@@ -29,7 +29,7 @@ impl Client {
         }
 
         let request = RPCRequest::new(method.as_ref().to_string(), params, true);
-        let id = request.id.clone();
+        let id = request.id;
         self.channels.request.send(request)?;
 
         let start_time = std::time::Instant::now();

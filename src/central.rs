@@ -113,7 +113,7 @@ impl Client {
             // needed so we can on demand close down this entire function.
             let _close = self.channels.close.1.clone();
             let close_h = tokio::spawn(async move {
-                while let Some(_) = _close.lock().await.recv().await {
+                if _close.lock().await.recv().await.is_some() {
                     return true;
                 }
                 false

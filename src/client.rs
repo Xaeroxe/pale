@@ -163,7 +163,7 @@ impl Client {
 
     /// Returns if the underlying socket is actively connected.  
     pub async fn is_connected(&self) -> bool {
-        self.client_connected.lock().await.clone()
+        *self.client_connected.lock().await
     }
 
     /// Returns when the [`Self::is_connected`] is equal to `state`
