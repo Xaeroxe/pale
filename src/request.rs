@@ -49,6 +49,7 @@ impl Client {
             }
 
             return if let Some(result) = res.result {
+                debug!("deserialized request return value: {result:?}");
                 Ok(serde_json::from_value(result)?)
             } else if let Some(error) = res.error {
                 Err(PaleError::RPC(error))
