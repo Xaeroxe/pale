@@ -4,8 +4,9 @@ use std::collections::HashMap;
 
 use futures_util::StreamExt;
 use serde::de::DeserializeOwned;
-use serde_json::{Value, Error as SerdeJsonError};
+use serde_json::{Error as SerdeJsonError, Value};
 use tokio::time::timeout;
+use tracing::{Level, debug};
 
 impl Client {
     /// Send a request to the specified `method` .  
@@ -88,14 +89,15 @@ impl Client {
         let method = method.as_ref().to_string();
         let stream = tokio_stream::wrappers::BroadcastStream::new(self.channels.notis.subscribe());
         let filter = stream
-            .filter_map(move |msg| async move {
-                msg.ok()
-            })
+            .filter_map(move |msg| async move { msg.ok() })
             .take_while(|r| futures::future::ready(!r.is_closing()))
             .filter_map(move |msg| {
                 let method = method.clone();
                 async move {
                     if msg.method == method {
+                        if let Some(value) = msg.params.as_ref() {
+                            debug!("deserialized subscribe value: {value:?}");
+                        }
                         Some(msg.params.map(|v| serde_json::from_value(v)))
                     } else {
                         None
